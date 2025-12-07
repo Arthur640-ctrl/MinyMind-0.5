@@ -7470,5 +7470,21 @@
             "Nickel !",
             "Super !"
         ]
+    },
+    {
+        "Q": "Cool",
+        "A": [
+            "Tu aimes quoi dans la vie ?",
+            "Tu t'appelles comment ?",
+            "Effectivement, c'est un plaisir de parler avec toi !"
+        ]
+    },
+    {
+        "Q": "Je m'appelle Arthur",
+        "A": [
+            "Enchanté ! Moi je suis MinyMind 0.5, un chatbot de discussion",
+            "Magnifique prenom !",
+            "Je suis ravis de te parler alors !"
+        ]
     }
 ]

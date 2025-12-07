@@ -1,66 +1,34 @@
-from sentence_transformers import SentenceTransformer, util
 import re
+import json
+from sentence_transformers import SentenceTransformer, util
 
-# model = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
+train_data_embeddings = None
+train_data = None
 
-calc_keywords = [
-    # Mots liés aux calculs
-    "calcule", "calcul", "additionne", "multiplie", "soustrait", "divise",
-    "ajoute", "addition", "soustraction", "multiplication", "division",
-    "somme", "résultat", "donne moi", "fait le calcul", "combien fait",
+model = None
 
-    # Symboles et opérateurs
-    "+", "-", "*", "x", ":", "/", "=", "^",
+def init():
+    global train_data, train_data_embeddings, model
 
-    # Phrases courantes
-    "combien font", "peux tu calculer", "quelle est la somme de",
-    "fais la multiplication", "fais la division", "donne le résultat de",
-    "résous", "résous ce calcul", "résous cette équation"
-]
+    model = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
+
+    with open("data/dispatcher.json", "r", encoding="utf-8") as f:
+        train_data = json.load(f)
+    
+    train_data_embeddings = {cat: model.encode(sentences) for cat, sentences in train_data.items()}
+
+def detect_intent_st(sentence):
+    emb = model.encode(sentence)
+    scores = {}
+    for cat, emb_list in train_data_embeddings.items():
+        sims = [util.cos_sim(emb, e).item() for e in emb_list]
+        scores[cat] = max(sims)
+    return max(scores, key=scores.get)
 
 def dispatch(prompt, calcResultDebug = False, resultScore = False, finalChoice = False):
-    
-    # promptEmbeding = model.encode(prompt, convert_to_tensor=True)
-
-    # if finalChoice and resultScore:
-    #     print("========== Similarity Check ==========")
-
-    calcScore = 0
-    # totalKeyword = len(calc_keywords)
-    # containsNumber = bool(re.search(r'\d+', prompt))
+    return detect_intent_st(prompt)
 
     
-    # for keyword in calc_keywords:
-    #     keywordEmbeding = model.encode(keyword, convert_to_tensor=True)
-        
-    #     similarity = util.cos_sim(keywordEmbeding, promptEmbeding).item()
-        
-    #     calcScore += similarity
-
-    #     if calcResultDebug:
-    #         print(f"| Word : '{keyword}' : {similarity}")
-
-    # promptSlice = re.findall(r"\b\w+\b", prompt)
-    # promptLength = len(promptSlice)
-
-    # calcScore = calcScore / totalKeyword
-
-    # if containsNumber:
-    #     calcScore *= 1.2
-
-    # if promptLength <= 2:         
-    #     calcScore *= 0.5          
-    # elif promptLength >= 10:       
-    #     calcScore *= 1.1    
-
-    # if resultScore:
-    #     print(f"=> CALCUL RESULT : {calcScore:.3f}")
-    #     print(f"=> PROMPT LENGTH : {promptLength}")
-    #     print("=> IS CALC : True" if calcScore >= 0.5 else "=> IS CALC : False")
-
-    if calcScore >= 0.5:
-        return "calc"
-    else:
-        return "process"
+    
         
 
