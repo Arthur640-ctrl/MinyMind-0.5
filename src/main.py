@@ -1,6 +1,6 @@
 from preprocessing.preprocesser import preprocess
 from preprocessing.dispatcher import dispatch
-from embeddings.search import Searching
+from search.search import Searching
 from generation.reponse import Response
 
 def process(rawPrompt):
